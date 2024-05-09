@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package grpc;
+
+option go_package = "github.com/dmoyan0/Lab4";
+
+message Estado_preparacion {
+    bool ready = 1;
+}
+message respuesta_preparacion {
+    string message = 1;
+}
+message AccumulatedAmountRequest {}
+message AccumulatedAmountResponse {
+    double ammount = 1;
+}
+
+//Servicio que manejara el envio de decisiones
+service MyService {
+    rpc SendPreparationStatus(Estado_preparacion) returns (respuesta_preparacion);
+
+    rpc SendResponse(Response) returns (Response);
+
+    rpc GetAccumulatedAmount(AccumulatedAmountRequest) returns (AccumulatedAmountResponse);
+}
