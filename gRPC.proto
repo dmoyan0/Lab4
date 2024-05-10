@@ -2,24 +2,101 @@ syntax = "proto3";
 
 package grpc;
 
-option go_package = "github.com/dmoyan0/Lab4";
+service Mercenary {
+  // MercenaryReadyRequest is a request message sent by a mercenary to inform the director of its readiness status.
+  message MercenaryReadyRequest {
+    string name = 1;
+    bool ready = 2;
+  }
 
-message Estado_preparacion {
-    bool ready = 1;
-}
-message respuesta_preparacion {
+  // MercenaryResponse is a response message sent by the director to a mercenary in response to a request.
+  message MercenaryResponse {
     string message = 1;
+  }
+
+  // GetAccumulatedAmountRequest is a request message sent by a mercenary to the director to view the accumulated amount.
+  message GetAccumulatedAmountRequest {
+    string name = 1;
+  }
+
+  // GetAccumulatedAmountResponse is a response message sent by the director to a mercenary containing the accumulated amount.
+  message GetAccumulatedAmountResponse {
+    double amount = 1;
+  }
+
+  rpc MercenaryReady(MercenaryReadyRequest) returns (MercenaryResponse);
+  rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulatedAmountResponse);
 }
-message AccumulatedAmountRequest {}
-message AccumulatedAmountResponse {
-    double ammount = 1;
+
+service Director {
+  // MercenaryDecisionRequest is a request message sent by the director to a mercenary to communicate a decision.
+  message MercenaryDecisionRequest {
+    string name = 1;
+    string decision = 2;
+  }
+
+  // MercenaryDecisionResponse is a response message sent by a mercenary to the director in response to a decision request.
+  message MercenaryDecisionResponse {
+    string message = 1;
+  }
+
+  // GetAccumulatedAmountRequest is a request message sent by the director to the doshbank to view the accumulated amount.
+  message GetAccumulatedAmountRequest {
+    // no fields needed
+  }
+
+  // GetAccumulatedAmountResponse is a response message sent by the doshbank to the director containing the accumulated amount.
+  message GetAccumulatedAmountResponse {
+    double amount = 1;
+  }
+
+  rpc MercenaryDecision(MercenaryDecisionRequest) returns (MercenaryDecisionResponse);
+  rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulatedAmountResponse);
 }
 
-//Servicio que manejara el envio de decisiones
-service MyService {
-    rpc SendPreparationStatus(Estado_preparacion) returns (respuesta_preparacion);
+service Namenode {
+  // RegisterDecisionRequest is a request message sent by the Namenode to register a mercenary's decision.
+  message RegisterDecisionRequest {
+    string mercenary_name = 1;
+    string floor = 2;
+    string datanode_ip = 3;
+  }
 
-    rpc SendResponse(Response) returns (Response);
+  // RegisterDecisionResponse is a response message sent by the Namenode to the director in response to a register request.
+  message RegisterDecisionResponse {
+    string message = 1;
+  }
 
-    rpc GetAccumulatedAmount(AccumulatedAmountRequest) returns (AccumulatedAmountResponse);
+  // GetRegisteredDecisionsRequest is a request message sent by the Namenode to retrieve registered decisions.
+  message GetRegisteredDecisionsRequest {
+    // no fields needed
+  }
+
+  // GetRegisteredDecisionsResponse is a response message sent by the Namenode to the director containing registered decisions.
+  message GetRegisteredDecisionsResponse {
+    repeated Decision decision = 1;
+  }
+
+  rpc RegisterDecision(RegisterDecisionRequest) returns (RegisterDecisionResponse);
+  rpc GetRegisteredDecisions(GetRegisteredDecisionsRequest) returns (GetRegisteredDecisionsResponse);
+}
+
+message Decision {
+  string mercenary_name = 1;
+  string floor = 2;
+  string datanode_ip = 3;
+}
+
+service Doshbank {
+  // GetAccumulatedAmountRequest is a request message sent by the director to the doshbank to view the accumulated amount.
+  message GetAccumulatedAmountRequest {
+    // no fields needed
+  }
+
+  // GetAccumulatedAmountResponse is a response message sent by the doshbank to the director containing the accumulated amount.
+  message GetAccumulatedAmountResponse {
+    double amount = 1;
+  }
+
+  rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulated)
 }
