@@ -53,6 +53,13 @@ func main() {
         log.Fatalf("Failed to serve: %v", err)
     }
 
+	connDirector, err := net.Dial("localhost:50050", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Failed to dial Director: %v", err)
+	}
+	defer connDirector.Close()
+
+	directorClient := pb.NewDirectorClient(connDirector)
 	//Implementar logica para la distributcion de los registros
-	
+
 }

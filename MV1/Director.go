@@ -5,7 +5,7 @@ import (
     "log"
     "net"
     "google.golang.org/grpc"
-    pb "path_to_your_proto_file" // Importa el paquete generado por protoc
+    pb "https://github.com/dmoyan0/Lab4/blob/main/gRPC.proto"// Importa el paquete generado por protoc
 )
 
 type server struct{}
@@ -28,7 +28,7 @@ func (s *server) GetAccumulatedAmount(ctx context.Context, req *pb.GetAccumulate
 }
 
 func main() {
-    lis, err := net.Listen("tcp", ":50052")
+    lis, err := net.Listen("tcp", ":50050")
     if err != nil {
         log.Fatalf("Failed to listen: %v", err)
     }
