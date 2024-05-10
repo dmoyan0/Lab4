@@ -9,7 +9,7 @@ import (
 
 func main() {
     // Establece la conexión gRPC con el Namenode
-    conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+    conn, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
     if err != nil {
         log.Fatalf("Failed to dial Namenode: %v", err)
     }

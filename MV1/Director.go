@@ -28,7 +28,7 @@ func (s *server) GetAccumulatedAmount(ctx context.Context, req *pb.GetAccumulate
 }
 
 func main() {
-    lis, err := net.Listen("tcp", ":50050")
+    lis, err := net.Listen("tcp", ":")
     if err != nil {
         log.Fatalf("Failed to listen: %v", err)
     }
