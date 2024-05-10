@@ -3,23 +3,23 @@ syntax = "proto3";
 package grpc;
 
 service Mercenary {
-  // MercenaryReadyRequest is a request message sent by a mercenary to inform the director of its readiness status.
+  // MercenaryReadyRequest mensaje de peticion del mercenario al director para informar su estado de preparacion.
   message MercenaryReadyRequest {
     string name = 1;
     bool ready = 2;
   }
 
-  // MercenaryResponse is a response message sent by the director to a mercenary in response to a request.
+  // MercenaryResponse respuesta de la request.
   message MercenaryResponse {
     string message = 1;
   }
 
-  // GetAccumulatedAmountRequest is a request message sent by a mercenary to the director to view the accumulated amount.
+  // GetAccumulatedAmountRequest Peticion para informar el monto acumulado.
   message GetAccumulatedAmountRequest {
     string name = 1;
   }
 
-  // GetAccumulatedAmountResponse is a response message sent by the director to a mercenary containing the accumulated amount.
+  // GetAccumulatedAmountResponse Respuesta deldirector de acuerdo a la peticion del monto.
   message GetAccumulatedAmountResponse {
     double amount = 1;
   }
