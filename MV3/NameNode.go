@@ -39,7 +39,7 @@ func (s *server) RegisterDecision(ctx context.Context, req *pb.RegisterDecisionR
 		log.Fatalf("Error al enviar el registro al Datanode": %v, err)
 	}
     // Retorna una respuesta indicando que el registro se procesó correctamente
-    return &pb.RegisterDecisionResponse{Message: "Decision registered successfully"}, nil
+    return &pb.RegisterDecisionResponse{Message: "Decision registrada"}, nil
 }
 
 func main() {
@@ -54,4 +54,5 @@ func main() {
     }
 
 	//Implementar logica para la distributcion de los registros
+	
 }
