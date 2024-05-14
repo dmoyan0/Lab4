@@ -118,7 +118,7 @@ func main() {
 		}
 	}()
 
-	// Espera la señal para terminar
+	// Espera la señal y terminar
 	<-stop
 	log.Println("Deteniendo el servidor gRPC")
 	grpcServer.GracefulStop()
