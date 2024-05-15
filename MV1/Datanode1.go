@@ -53,6 +53,15 @@ func (s *datanodeServer) RegisterDecision(ctx context.Context, req *pb.RegisterD
     return &pb.RegisterDecisionResponse{"Decision escrita en un archivo correctamente"}, nil
 }
 
+func (s *datanodeServer) GetFileContent(ctx context.Context, req *pb.GetFileContentRequest) (res *pb.GetFileContentResponse, error) {
+	filename := req.GetFileName()
+	fileContent, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetFileContentResponse{Content: string(fileContent)}, nil
+}
+
 func main() {
 	// Establece la conexión gRPC con el Namenode
 	conn, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
