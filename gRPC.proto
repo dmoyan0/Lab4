@@ -33,6 +33,8 @@ service Director {
   message MercenaryDecisionRequest {
     string name = 1;
     string decision = 2;
+    string floor = 3;
+    string datanode_ip = 4;
   }
 
   // MercenaryDecisionResponse is a response message sent by a mercenary to the director in response to a decision request.
@@ -58,8 +60,9 @@ service Namenode {
   // RegisterDecisionRequest is a request message sent by the Namenode to register a mercenary's decision.
   message RegisterDecisionRequest {
     string mercenary_name = 1;
-    string floor = 2;
-    string datanode_ip = 3;
+    string decision = 2;
+    string floor = 3;
+    string datanode_ip = 4;
   }
 
   // RegisterDecisionResponse is a response message sent by the Namenode to the director in response to a register request.

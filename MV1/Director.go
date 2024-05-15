@@ -49,6 +49,31 @@ func (s *DirectorServer) ObtenerMontoDoshBank(ctx context.Context) int {
 	return int(resp.TotalAmount)
 }
 
+func (s *DirectorServer) enviarDecisionANamenode(ctx context.Context, req *pb.MercenaryDecisionRequest) (*pb.MercenaryDecisionResponse, error) {
+	//Se crea una conexion con el namenode
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Error en la conexion: %v", err)
+	}
+	defer conn.Close()
+
+	//Se crea el cliente para el servicio del namenode
+	Namenode := pb.NewClient(conn)
+
+	//Registrar decision en el cliente
+	_, err = Namenode.RegisterDecision(ctx, &pb.MercenaryDecisionRequest{
+		MercenaryName: req.name,
+		Decision: req.decision,
+		Floor: req.floor,
+		IP: req.datanode_ip
+	}
+	if err != nil {
+		log.Fatalf("Falla al registrar la decision en el datanode: %v", err)
+	}
+
+	return &pb.MercenaryDecisionResponse{Message: "Decision enviada al datanode"}
+}
+
 func main() {
 	lis, err := net.Listen("tcp", ":")
 	if err != nil {

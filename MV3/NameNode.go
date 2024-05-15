@@ -15,10 +15,11 @@ type server struct{}
 
 // Implementa el método RegisterDecision del servicio Namenode
 func (s *server) RegisterDecision(ctx context.Context, req *pb.RegisterDecisionRequest) (*pb.RegisterDecisionResponse, error) {
-	datanodeslist := []string{"localhost:50052", "localhost:50053", "localhost:50054"}//Modificar de acuerdo a nombres e IPs
+	//datanodeslist := []string{"localhost:50052", "localhost:50053", "localhost:50054"}//Modificar de acuerdo a nombres e IPs
+	datanode_ip := req.datanode_ip
 
 	rand.Seed(time.Now().UnixNano())//Se elije una direccion al azar
-	chosenDatanode := datanodeslist[rand.Intn(len(datanodeslist))]
+	chosenDatanode := datanodeslist[rand.Intn(len(datanode_ip))]
 
 	//Establece una conexion gRPC con el Datanode elegido
 	conn, err := net.Dial(chosenDatanode, grpc.WithInsecure())
@@ -31,9 +32,10 @@ func (s *server) RegisterDecision(ctx context.Context, req *pb.RegisterDecisionR
 	client := pb.NewClient(conn)
 
 	_,err = client.RegisterDecision(ctx, &pb.RegisterDecisionRequest{
-		MercenaryName: req.MercenaryName,
-		Floor: req.Floor,
-		DatanodeIP: req.DatanodeIP,
+		MercenaryName: req.name,
+		Decision: req.decision,
+		Floor: req.floor,
+		IP: req.datanode_ip
 	})
 	if err != nil {
 		log.Fatalf("Error al enviar el registro al Datanode": %v, err)
@@ -47,6 +49,7 @@ func main() {
     if err != nil {
         log.Fatalf("Failed to listen: %v", err)
     }
+	//Servidor para Namenode, desde aca se enviaran mensajes a los datanodes y al Director
     s := grpc.NewServer()
     pb.RegisterNamenodeServer(s, &server{})
     if err := s.Serve(lis); err != nil {
@@ -59,6 +62,7 @@ func main() {
 	}
 	defer connDirector.Close()
 
+	//Cliente para el director
 	directorClient := pb.NewDirectorClient(connDirector)
 	//Implementar logica para la distributcion de los registros
 
