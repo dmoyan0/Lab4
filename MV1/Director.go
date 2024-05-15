@@ -61,7 +61,7 @@ func (s *DirectorServer) enviarDecisionANamenode(ctx context.Context, req *pb.Me
 	Namenode := pb.NewClient(conn)
 
 	//Registrar decision en el cliente
-	_, err = Namenode.RegisterDecision(ctx, &pb.MercenaryDecisionRequest{
+	_, err = Namenode.RegisterDecision(ctx, &pb.MercenaryDecisionRequest) {
 		MercenaryName: req.name,
 		Decision: req.decision,
 		Floor: req.floor,
@@ -71,7 +71,7 @@ func (s *DirectorServer) enviarDecisionANamenode(ctx context.Context, req *pb.Me
 		log.Fatalf("Falla al registrar la decision en el datanode: %v", err)
 	}
 
-	return &pb.MercenaryDecisionResponse{Message: "Decision enviada al datanode"}
+	return &pb.MercenaryDecisionResponse{Message: "Decision enviada al namenode"}
 }
 
 func main() {

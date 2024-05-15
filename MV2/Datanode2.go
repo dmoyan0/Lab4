@@ -53,6 +53,15 @@ func (s *datanodeServer) RegisterDecision(ctx context.Context, req *pb.RegisterD
     return &pb.RegisterDecisionResponse{"Decision escrita en un archivo correctamente"}, nil
 }
 
+func (s *datanodeServer) GetFileContent(ctx context.Context, req *pb.GetFileContentRequest) (res *pb.GetFileContentResponse, error) {
+	filename := req.GetFileName()
+	fileContent, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetFileContentResponse{Content: string(fileContent)}, nil
+}
+
 func main() {
 	// Establece la conexión gRPC con el Namenode
 	conn, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
@@ -61,8 +70,9 @@ func main() {
 	}
 	defer conn.Close()
 
-	// Crea un cliente gRPC para el servicio Namenode
-	client := pb.NewNamenodeClient(conn)
+	// Crea un cliente gRPC para el servicio Datanode
+	client := pb.NewDatanodeClient(conn)
+	//Falta establecer conexion con el servicio Namenode
 
 	// Implementar un bucle que escuche por registros de decisiones
 	// y los procese de alguna manera

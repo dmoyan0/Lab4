@@ -15,14 +15,10 @@ type server struct{}
 
 // Implementa el método RegisterDecision del servicio Namenode
 func (s *server) RegisterDecision(ctx context.Context, req *pb.RegisterDecisionRequest) (*pb.RegisterDecisionResponse, error) {
-	//datanodeslist := []string{"localhost:50052", "localhost:50053", "localhost:50054"}//Modificar de acuerdo a nombres e IPs
 	datanode_ip := req.datanode_ip
 
-	rand.Seed(time.Now().UnixNano())//Se elije una direccion al azar
-	chosenDatanode := datanodeslist[rand.Intn(len(datanode_ip))]
-
 	//Establece una conexion gRPC con el Datanode elegido
-	conn, err := net.Dial(chosenDatanode, grpc.WithInsecure())
+	conn, err := net.Dial(datanode_ip, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Error al conectarse: %v", err)
 	}
@@ -44,19 +40,45 @@ func (s *server) RegisterDecision(ctx context.Context, req *pb.RegisterDecisionR
     return &pb.RegisterDecisionResponse{Message: "Decision registrada"}, nil
 }
 
-func main() {
-    lis, err := net.Listen("tcp", ":50051")
-    if err != nil {
-        log.Fatalf("Failed to listen: %v", err)
-    }
-	//Servidor para Namenode, desde aca se enviaran mensajes a los datanodes y al Director
-    s := grpc.NewServer()
-    pb.RegisterNamenodeServer(s, &server{})
-    if err := s.Serve(lis); err != nil {
-        log.Fatalf("Failed to serve: %v", err)
-    }
+func getFileContent(filename string, client pb.DatanodeClient, director pb.DirectorClient) error{
+	req := &pb.GetFileContentRequest{
+		Filename: filename,
+	}
 
+	resp, err := client.GetFileContent(context.Background(), req)
+	if err != nil {
+		return err
+	}
+
+	sendFileContentToDirector(resp.getContent(), filename, director)
+
+	return nil
+}
+
+func sendFileContentToDirector(content string, filename string, director pb.DirectorClient) error {
+	req := &pb.SendFileContentRequest{
+		Filename: filename,
+		Content: content,
+	}
+
+	_, err := client.SendFileContent(context.Background(), req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func main() {
+    conn, err := net.Listen("localhost:50051", grpc.WithInsecure())
+    if err != nil {
+        log.Fatalf("Failed to connect: %v", err)
+    }
+	defer conn.Close()
+	
+	client := pb.NewDatanodeClient(conn)
 	connDirector, err := net.Dial("localhost:50050", grpc.WithInsecure())
+	
 	if err != nil {
 		log.Fatalf("Failed to dial Director: %v", err)
 	}

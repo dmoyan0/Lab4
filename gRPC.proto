@@ -103,3 +103,15 @@ service Doshbank {
 
   rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulated)
 }
+
+service Datanode {
+  message GetFileContentRequest {
+    string filename = 1;
+  }
+
+  message GetFileContentResponse {
+    string content = 1;
+  }
+
+  rpc GetFileContent(GetFileContentRequest) returns (GetFileContentResponse);
+}
