@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"math/rand"
+	"sync"
+	"time"
 	pb "https://github.com/dmoyan0/Lab4/blob/main/gRPC.proto"// Importa el paquete generado por protoc
 
 	"google.golang.org/grpc"
@@ -62,5 +64,22 @@ func (m *Mercenary) Run() {
 
 
 func main() {
-	
+	Director_dir := "localhost:50050"
+	var wg sync.WaitGroup
+
+	mercenaries := []string{"mercenary1", "mercenary2", "mercenary3", "mercenary4", "mercenary5", "mercenary6", "mercenary7"}
+
+	for i:=0; i<7; i++ {
+		wg.Add(1)
+		go func(i int) {
+			m, err := NewMercenary(mercenaries[i], Director_dir)
+			if err != nil {
+				log.Fatalf("error creating Mercenary: %v", err)
+			}
+			m.Run()
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+
 }
