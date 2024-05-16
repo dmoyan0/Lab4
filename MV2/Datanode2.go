@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	pb "path_to_your_proto_file" // Importa el paquete generado por protoc
+	pb "https://github.com/dmoyan0/Lab4/blob/main/gRPC.proto"// Importa el paquete generado por protoc
 
 	"google.golang.org/grpc"
 )
