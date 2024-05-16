@@ -4,122 +4,56 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"os"
-	"os/signal"
-	"syscall"
 
-	pb "github.com/dmoyan0/Lab4/tree/main/proto"
-
-	"github.com/golang/protobuf/ptypes/empty"
+	pb "github.com/dmoyan0/Lab4/grpc" // proto
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// Servidor DoshBank
-type DoshBankServer struct {
-	MontoAcumulado int
+type DoshbankServer struct {
+	montoAcumulado float64
 }
 
-// Servicio gRPC DoshBank
-type DoshBankService struct {
-	DoshBankServer *DoshBankServer
+// Función para obtener el monto acumulado
+func (s *DoshbankServer) GetmontoAcumulado(ctx context.Context, req *pb.GetmontoAcumuladoRequest) (*pb.GetmontoAcumuladoResponse, error) {
+	return &pb.GetmontoAcumuladoResponse{Monto: s.montoAcumulado}, nil
 }
 
-// Registra la muerte y el monto acumulado del mercenario
-func (s *DoshBankService) Eliminado(ctx context.Context, req *pb.EliminadoRequest) (*empty.Empty, error) {
-	log.Printf("Mercenario eliminado: %s en piso %d\n", req.Mercenario, req.Piso)
-	s.DoshBankServer.MontoAcumulado += 10 // Aumenta el monto acumulado **
-	log.Printf("Monto acumulado actualizado: %d\n", s.DoshBankServer.MontoAcumulado)
-	s.ArchivoEliminado(req.Mercenario, req.Piso) // Archivo
-	return &empty.Empty{}, nil
-}
+// Función que registra a un mercenario eliminado
+func (s *DoshbankServer) MercenarioEliminado(ctx context.Context, req *pb.MercenarioEliminadoRequest) (*pb.MercenarioEliminadoResponse, error) {
+	// Registra al mercenario eliminado y aumenta el monto acumulado cada vez que se llama esta función
+	s.montoAcumulado += 100000000
+	log.Printf("Mercenario %s eliminado en el piso %d. Monto acumulado: %f\n", req.Name, req.Piso, s.montoAcumulado)
 
-// Entrega el monto acumulado en el momento de la consulta
-func (s *DoshBankService) ObtenerMonto(ctx context.Context, req *empty.Empty) (*pb.MontoAcumuladoResponse, error) {
-	log.Printf("Consulta de monto acumulado recibida\n")
-	return &pb.MontoAcumuladoResponse{TotalAmount: int32(s.DoshBankServer.MontoAcumulado)}, nil
-}
-
-// Trabajo de archivo en caso que muere el mercenario
-func (s *DoshBankService) ArchivoEliminado(mercenario string, piso int32) {
-	file, err := os.OpenFile("eliminado.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// Creamos e intentamos abrir  el txt
+	file, err := os.OpenFile("mercenarios_eliminados.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("Error al abrir el archivo: %v", err)
 	}
 	defer file.Close()
 
-	if _, err := fmt.Fprintf(file, "%s Piso %d %d\n", mercenario, piso, s.DoshBankServer.MontoAcumulado); err != nil {
+	// Escritura en el txt con la info solicitada del mercenario
+	line := fmt.Sprintf("Mercenario %s eliminado en el piso %d. Monto acumulado: %f\n", req.Name, req.Piso, s.montoAcumulado)
+	if _, err := file.WriteString(line); err != nil {
 		log.Fatalf("Error al escribir en el archivo: %v", err)
 	}
+
+	return &pb.MercenarioEliminadoResponse{}, nil
 }
 
 func main() {
-	// Configuración del servidor gRPC
-	server := &DoshBankServer{MontoAcumulado: 0}
-	grpcServer := grpc.NewServer()
-	doshBankService := &DoshBankService{DoshBankServer: server}
-	pb.RegisterDoshBankServiceServer(grpcServer, doshBankService)
-
-	// Comunicación con RabbitMQ
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/") //*
-	if err != nil {
-		log.Fatalf("Error al conectar con RabbitMQ: %v", err)
-	}
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		log.Fatalf("Error al abrir el canal: %v", err)
-	}
-	defer ch.Close()
-
-	_, err = ch.QueueDeclare(
-		"cola_eliminados", // Nombre de la cola
-		true,              // Durable
-		false,             // AutoDelete
-		false,             // Exclusive
-		false,             // NoWait
-		nil,               // Argumentos
-	)
-	if err != nil {
-		log.Fatalf("Error al declarar la cola: %v", err)
-	}
-
-	msgs, err := ch.Consume(
-		"cola_eliminados", // Nombre de la cola
-		"",                // Consumer
-		true,              // AutoAck
-		false,             // Exclusive
-		false,             // NoLocal
-		false,             // NoWait
-		nil,               // Argumentos
-	)
-	if err != nil {
-		log.Fatalf("Failed to publish a message: %v", err)
-	}
-
-	go func() {
-		for msg := range msgs {
-			log.Printf("Mensaje recibido: %s\n", msg.Body)
-		}
-	}()
-
-	// Terminar el servidor gRPC
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	// Servidor gRPC
+	server := grpc.NewServer()
+	pb.RegisterDoshbankServer(server, &DoshbankServer{})
 
 	// Iniciar el servidor gRPC
-	reflection.Register(grpcServer)
-	go func() {
-		if err := grpcServer.Serve(listener); err != nil {
-			log.Fatalf("Error al servir: %v", err)
-		}
-	}()
-
-	// Espera la señal y terminar
-	<-stop
-	log.Println("Deteniendo el servidor gRPC")
-	grpcServer.GracefulStop()
+	lis, err := net.Listen("tcp", ":50052")
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+	log.Println("Doshbank gRPC server listening on port 50052...")
+	if err := server.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }
