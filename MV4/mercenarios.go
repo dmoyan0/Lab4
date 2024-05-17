@@ -18,8 +18,9 @@ type Mercenary struct {
 	name string
 	client pb.DirectorClient
 	conn *grpc.Clientconn
-	floors []string
+	floors int
 	datanodeIP string
+	arma int
 }
 
 //Funcion que establece un nuevo mercenario con conexion dir
@@ -94,6 +95,20 @@ func (m *Mercenary) Player() {
 		}
 	}
 	fmt.Printf("Mercenario %s esta listo: %s\n", m.name, resp.Message)
+	//Meter lo anterior a una funcion para llamarla posteriormente
+	//Una vez confirmada la preparacion se debe interactuar con los niveles del Director
+	for ready {//cambiar ready
+		switch req.Floor{
+		case 1:
+			armas := []int {1, 2, 3}
+			rand.Seed(time.Now().UnixNano())
+			randomIndex := rand.Intn(len(datanodes))
+			arma := armas[randomIndex]
+			//Cambiar por interfaz
+		}
+	}
+
+
 }
 
 func main() {
@@ -106,6 +121,7 @@ func main() {
 	fmt.Printf("Ingrese el nombre de su mercenario: ")
 	fmt.Scan(&Player)
 
+	//Creacion de los 7 npcs
 	for i:=0; i<7; i++ {
 		wg.Add(1)
 		go func(i int) {
@@ -117,7 +133,7 @@ func main() {
 			wg.Done()
 		}(i)
 	}
-
+	//Creacion del player
 	wg.Add(1)
 	go func() {//Para el mercenario del jugador
 		m, err := NewMercenary(Player, Director_dir)

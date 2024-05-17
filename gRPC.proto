@@ -24,8 +24,17 @@ service Mercenary {
     double amount = 1;
   }
 
+  message MercenaryFloorRequest {
+    string floor = 1;
+  }
+
+  message MercenaryFloorResponse {
+    string floor = 1;
+  }
+
   rpc MercenaryReady(MercenaryReadyRequest) returns (MercenaryResponse);
   rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulatedAmountResponse);
+  rpc GetFloor(MercenaryFloorRequest) returns (MercenaryFloorResponse);
 }
 
 service Director {

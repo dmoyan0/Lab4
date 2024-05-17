@@ -81,6 +81,20 @@ func (s *DirectorServer) MercenaryDecision(ctx context.Context, req *pb.Mercenar
 	}
 }
 
+func (s *DirectorServer) PlayerDecision(ctx context.Context, req *pb.MercenaryDecisionRequest) (*pb.MercenaryDecisionResponse, error) {
+	var client pb.MercenaryClient
+
+	conn, err := grpc.Dial("localhost:50055", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Failed to connect: %v", err)
+	}
+
+	player := pb.NewMercenaryClient(conn)
+
+	
+
+
+}
 
 // Informa al DoshBank y a RabbitMQ cuando un mercenario es eliminado
 func (s *DirectorServer) ReportarEliminacion(ctx context.Context, mercenario string, piso int) {
