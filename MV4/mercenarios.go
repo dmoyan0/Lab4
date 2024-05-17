@@ -76,6 +76,9 @@ func main() {
 			if err != nil {
 				log.Fatalf("error creating Mercenary: %v", err)
 			}
+			// if i + 1 == 7:{
+			// 	m, err = NewMercenary("NOMBRE", Director_dir)
+			// }
 			m.Run()
 			wg.Done()
 		}(i)
