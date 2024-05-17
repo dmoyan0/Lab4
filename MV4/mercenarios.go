@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"sync"
 	"time"
+	"strings"
 	pb "https://github.com/dmoyan0/Lab4/blob/main/gRPC.proto"// Importa el paquete generado por protoc
 
 	"google.golang.org/grpc"
@@ -63,11 +64,47 @@ func (m *Mercenary) Run() {
 }
 
 
+func (m *Mercenary) Player() {
+	defer m.conn.Close()
+
+	var ready bool
+
+	//Loop para esperar a que se confirme el estado de preparacion
+	for !ready {
+		var readyString string
+
+		fmt.Print("¿Está listo para entrar al piso? [Si/No]: ")
+		fmt.Scanf("%s", &readyString)
+
+		readyString = strings.ToLower(strings.TrimSpace(readyString))
+
+		if readyString == "si" {
+			ready = true
+
+			req := &pb.MercenaryReadyRequest{
+				Name: m.name,
+				Ready: ready,
+			}
+
+			resp, err := m.client.MercenaryReady(context.Background(), req)
+
+			if err != nil {
+				log.Fatalf("Failed to confirm: %v", err)
+			}
+		}
+	}
+	fmt.Printf("Mercenario %s esta listo: %s\n", m.name, resp.Message)
+}
+
 func main() {
 	Director_dir := "localhost:50050"
 	var wg sync.WaitGroup
 
 	mercenaries := []string{"mercenary1", "mercenary2", "mercenary3", "mercenary4", "mercenary5", "mercenary6", "mercenary7"}
+
+	var Player string
+	fmt.Printf("Ingrese el nombre de su mercenario: ")
+	fmt.Scan(&Player)
 
 	for i:=0; i<7; i++ {
 		wg.Add(1)
@@ -76,12 +113,19 @@ func main() {
 			if err != nil {
 				log.Fatalf("error creating Mercenary: %v", err)
 			}
-			// if i + 1 == 7:{
-			// 	m, err = NewMercenary("NOMBRE", Director_dir)
-			// }
 			m.Run()
 			wg.Done()
 		}(i)
+	}
+
+	wg.Add(1)
+	go func() {//Para el mercenario del jugador
+		m, err := NewMercenary(Player, Director_dir)
+		if err != nil {
+			log.Fatalf("error creating Mercenary: %v", err)
+		}
+		m.Player()//Se envia a una funcion 
+		wg.Done()
 	}
 	wg.Wait()
 
