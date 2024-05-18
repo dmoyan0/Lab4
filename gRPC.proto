@@ -2,95 +2,74 @@ syntax = "proto3";
 
 package grpc;
 
+//SERVICIO mercenario
 service Mercenary {
-  // MercenaryReadyRequest mensaje de peticion del mercenario al director para informar su estado de preparacion.
-  message MercenaryReadyRequest {
-    string name = 1;
-    bool ready = 2;
-  }
-
-  // MercenaryResponse respuesta de la request.
-  message MercenaryResponse {
-    string message = 1;
-  }
-
-  // GetAccumulatedAmountRequest Peticion para informar el monto acumulado.
-  message GetAccumulatedAmountRequest {
-    string name = 1;
-  }
-
-  // GetAccumulatedAmountResponse Respuesta deldirector de acuerdo a la peticion del monto.
-  message GetAccumulatedAmountResponse {
-    double amount = 1;
-  }
-
-  message MercenaryFloorRequest {
-    string floor = 1;
-  }
-
-  message MercenaryFloorResponse {
-    string floor = 1;
-  }
-
   rpc MercenaryReady(MercenaryReadyRequest) returns (MercenaryResponse);
   rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulatedAmountResponse);
   rpc GetFloor(MercenaryFloorRequest) returns (MercenaryFloorResponse);
 }
+// MercenaryReadyRequest mensaje de peticion del mercenario al director para informar su estado de preparacion.
+message MercenaryReadyRequest {
+  string name = 1;
+  bool ready = 2;
+}
+
+// MercenaryResponse respuesta de la request.
+message MercenaryResponse {
+  string message = 1;
+}
+
+message MercenaryFloorRequest {
+  string floor = 1;
+}
+
+message MercenaryFloorResponse {
+  string floor = 1;
+}
+
 
 service Director {
-  // MercenaryDecisionRequest is a request message sent by the director to a mercenary to communicate a decision.
-  message MercenaryDecisionRequest {
-    string name = 1;
-    string decision = 2;
-    string floor = 3;
-    string datanode_ip = 4;
-  }
-
-  // MercenaryDecisionResponse is a response message sent by a mercenary to the director in response to a decision request.
-  message MercenaryDecisionResponse {
-    string message = 1;
-  }
-
-  // GetAccumulatedAmountRequest is a request message sent by the director to the doshbank to view the accumulated amount.
-  message GetAccumulatedAmountRequest {
-    // no fields needed
-  }
-
-  // GetAccumulatedAmountResponse is a response message sent by the doshbank to the director containing the accumulated amount.
-  message GetAccumulatedAmountResponse {
-    double amount = 1;
-  }
-
   rpc MercenaryDecision(MercenaryDecisionRequest) returns (MercenaryDecisionResponse);
   rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulatedAmountResponse);
 }
+// MercenaryDecisionRequest is a request message sent by the director to a mercenary to communicate a decision.
+message MercenaryDecisionRequest {
+  string name = 1;
+  string decision = 2;
+  string floor = 3;
+  string datanode_ip = 4;
+}
+
+// MercenaryDecisionResponse is a response message sent by a mercenary to the director in response to a decision request.
+message MercenaryDecisionResponse {
+  string message = 1;
+}
 
 service Namenode {
-  // RegisterDecisionRequest is a request message sent by the Namenode to register a mercenary's decision.
-  message RegisterDecisionRequest {
-    string mercenary_name = 1;
-    string decision = 2;
-    string floor = 3;
-    string datanode_ip = 4;
-  }
-
-  // RegisterDecisionResponse is a response message sent by the Namenode to the director in response to a register request.
-  message RegisterDecisionResponse {
-    string message = 1;
-  }
-
-  // GetRegisteredDecisionsRequest is a request message sent by the Namenode to retrieve registered decisions.
-  message GetRegisteredDecisionsRequest {
-    // no fields needed
-  }
-
-  // GetRegisteredDecisionsResponse is a response message sent by the Namenode to the director containing registered decisions.
-  message GetRegisteredDecisionsResponse {
-    repeated Decision decision = 1;
-  }
-
   rpc RegisterDecision(RegisterDecisionRequest) returns (RegisterDecisionResponse);
   rpc GetRegisteredDecisions(GetRegisteredDecisionsRequest) returns (GetRegisteredDecisionsResponse);
+}
+// RegisterDecisionRequest is a request message sent by the Namenode to register a mercenary's decision.
+message RegisterDecisionRequest {
+  string mercenary_name = 1;
+  string decision = 2;
+  string floor = 3;
+  string datanode_ip = 4;
+}
+
+// RegisterDecisionResponse is a response message sent by the Namenode to the director in response to a register request.
+message RegisterDecisionResponse {
+  string message = 1;
+}
+
+// GetRegisteredDecisionsRequest is a request message sent by the Namenode to retrieve registered decisions.
+message GetRegisteredDecisionsRequest {
+  // no fields needed
+}
+
+// GetRegisteredDecisionsResponse is a response message sent by the Namenode to the director containing registered decisions.
+message GetRegisteredDecisionsResponse {
+  repeated Decision decision = 1;
 }
 
 message Decision {
@@ -100,27 +79,26 @@ message Decision {
 }
 
 service Doshbank {
-  // GetAccumulatedAmountRequest is a request message sent by the director to the doshbank to view the accumulated amount.
-  message GetAccumulatedAmountRequest {
-    rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulatedAmountResponse)
-  }
-
-  // GetAccumulatedAmountResponse is a response message sent by the doshbank to the director containing the accumulated amount.
-  message GetAccumulatedAmountResponse {
-    double amount = 1;
-  }
-
-  rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulated)
+  rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulatedAmountResponse);
+}
+// GetAccumulatedAmountRequest is a request message sent by the director to the doshbank to view the accumulated amount.
+message GetAccumulatedAmountRequest {
+  double amount = 1;
 }
 
+// GetAccumulatedAmountResponse is a response message sent by the doshbank to the director containing the accumulated amount.
+message GetAccumulatedAmountResponse {
+  double amount = 1;
+}
+
+
 service Datanode {
-  message GetFileContentRequest {
-    string filename = 1;
-  }
-
-  message GetFileContentResponse {
-    string content = 1;
-  }
-
   rpc GetFileContent(GetFileContentRequest) returns (GetFileContentResponse);
+}
+message GetFileContentRequest {
+  string filename = 1;
+}
+
+message GetFileContentResponse {
+  string content = 1;
 }

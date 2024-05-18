@@ -38,16 +38,16 @@ func NewMercenary(name string, dir string) (*Mercenary, error) {
 	randomDatanode := datanodes[randomIndex]
 
 	return &Mercenary{
-		name:   name,
-		client: client,
-		conn:   conn,
-		//floors:     []string{"Piso 1", "Piso 2", "Piso 3"},
+		name:       name,
+		client:     client,
+		conn:       conn,
+		floors:     1, //Cada mercenario comienza en el piso 1
 		datanodeIP: randomDatanode,
 	}, nil
 }
 
 // Ejecutar mercenario
-func (m *Mercenary) Run() {
+func (m *Mercenary) Run(int floor) {
 	defer m.conn.Close()
 
 	//Informar al director del estado de preparacion
@@ -62,12 +62,13 @@ func (m *Mercenary) Run() {
 	fmt.Printf("Mercenario %s esta listo: %s\n", m.name, resp.Message)
 
 	//Implementar el resto de la logica
-	for floor := 1; floor <= 3; floor++ {
+	if floor <= 3 {
 		m.Decision(floor)
-	}
+		m.Run(floor++)
+	}	
 }
 
-func (m *Mercenary) Player() {
+func (m *Mercenary) Player_Ready(int floor) {
 	defer m.conn.Close()
 
 	var ready bool
@@ -85,8 +86,9 @@ func (m *Mercenary) Player() {
 			ready = true
 
 			req := &pb.MercenaryReadyRequest{
-				Name:  m.name,
-				Ready: ready,
+				Name:   m.name,
+				Ready:  ready,
+				Floors: floor,
 			}
 
 			resp, err := m.client.MercenaryReady(context.Background(), req)
@@ -98,21 +100,10 @@ func (m *Mercenary) Player() {
 	}
 	fmt.Printf("Mercenario %s esta listo: %s\n", m.name, resp.Message)
 
-	for floor := 1; floor <= 3; floor++ {
+	if floor <= 3 {
 		m.PlayerDecision(floor)
+		m.Player_Ready(floor++, done)
 	}
-	//Meter lo anterior a una funcion para llamarla posteriormente
-	//Una vez confirmada la preparacion se debe interactuar con los niveles del Director
-	/*for ready {//cambiar ready
-		switch req.Floor{
-		case 1:
-			armas := []int {1, 2, 3}
-			rand.Seed(time.Now().UnixNano())
-			randomIndex := rand.Intn(len(datanodes))
-			arma := armas[randomIndex]
-			//Cambiar por interfaz
-		}
-	}*/
 
 }
 
@@ -278,7 +269,7 @@ func main() {
 			if err != nil {
 				log.Fatalf("error creating Mercenary: %v", err)
 			}
-			m.Run()
+			m.Run(1)
 			wg.Done()
 		}(i)
 	}
@@ -290,7 +281,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("error creating Mercenary: %v", err)
 		}
-		m.Player() //Se envia a una funcion
+		m.Player_Ready(1) //Se envia a una funcion
 	}()
 	wg.Wait()
 
