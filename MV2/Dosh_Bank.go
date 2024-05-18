@@ -11,11 +11,12 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Servidor Doshbank
 type DoshbankServer struct {
 	montoAcumulado float64
 }
 
-// Función para obtener el monto acumulado
+// Función para obtener el monto acumulado hasta el momento
 func (s *DoshbankServer) GetmontoAcumulado(ctx context.Context, req *pb.GetmontoAcumuladoRequest) (*pb.GetmontoAcumuladoResponse, error) {
 	return &pb.GetmontoAcumuladoResponse{Monto: s.montoAcumulado}, nil
 }
@@ -48,12 +49,12 @@ func main() {
 	pb.RegisterDoshbankServer(server, &DoshbankServer{})
 
 	// Iniciar el servidor gRPC
-	lis, err := net.Listen("tcp", ":50052")
+	lis, err := net.Listen("tcp", ":50056")
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
-	log.Println("Doshbank gRPC server listening on port 50052...")
+	log.Println("Servidor Doshbank escuchando en el puerto 50056...")
 	if err := server.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
+		log.Fatalf("Error: %v", err)
 	}
 }

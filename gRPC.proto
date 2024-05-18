@@ -102,7 +102,7 @@ message Decision {
 service Doshbank {
   // GetAccumulatedAmountRequest is a request message sent by the director to the doshbank to view the accumulated amount.
   message GetAccumulatedAmountRequest {
-    // no fields needed
+    rpc GetAccumulatedAmount(GetAccumulatedAmountRequest) returns (GetAccumulatedAmountResponse)
   }
 
   // GetAccumulatedAmountResponse is a response message sent by the doshbank to the director containing the accumulated amount.
