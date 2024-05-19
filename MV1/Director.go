@@ -265,6 +265,14 @@ func (s *DirectorServer) enviarDecisionANamenode(ctx context.Context, req *pb.Me
 	//Se crea el cliente para el servicio del namenode
 	client := pb.NewClient(conn)
 
+	conn, err = grpc.Dial("localhost:50055", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Failer to connect: %v", nil)
+	}
+	defer conn.Close()
+
+	mercenary := pb.NewMercenaryClient(conn)
+
 	//Registrar decision en el cliente
 	_, err = Namenode.RegisterDecision(ctx, &pb.MercenaryDecisionRequest){
 		MercenaryName: req.name,
@@ -300,7 +308,7 @@ func main() {
 	}
 
 	//Se iniciliza el servidor gRCP del director en el puerto 50053
-	lis, err := net.Listen("tcp", ":50053")
+	lis, err := net.Listen("tcp", ":50050")
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
