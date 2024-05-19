@@ -8,7 +8,7 @@ import (
 	"net"
 	"time"
 
-	pb "github.com/dmoyan0/Lab4/grpc" // proto
+	pb "github.com/dmoyan0/Lab4/blob/main/gRPC.proto" // proto
 
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
@@ -99,114 +99,159 @@ func (s *DirectorServer) ReportarEliminacion(ctx context.Context, mercenario str
 }
 
 func (s *DirectorServer) MercenaryDecision(ctx context.Context, req *pb.MercenaryDecisionRequest) (*pb.MercenaryDecisionResponse, error) {
-	// Lógica para manejar la decisión del mercenario dependiendo del piso
-	switch req.Floor {
-	case 1:
-		// Piso 1 Entrada al infierno
-		arma := req.armaChoice
+	var readyGame string
+	fmt.Print("¿Dar inicio al juego? [Si/No]: ")
+	fmt.Scanf("%s", &readyGame)
 
-		// Numeros aleatorios entre 0 y 100
-		rand.Seed(time.Now().UnixNano())
-		X := rand.Intn(101)
-		Y := rand.Intn(101)
-		for X == Y {
-			Y = rand.Intn(101)
-		} //Caso que sean iguales, se elige otro
+	if readyGame == "Si" {
+		// Lógica para manejar la decisión del mercenario dependiendo del piso
+		switch req.Floor {
 
-		// 	Probabilidades
-		prob1 := float64(X)
-		prob2 := float64(Y - X)
-		prob3 := float64(100 - Y)
+		case 1:
+			var readyPiso1 string
+			fmt.Print("¿Dar inicio al Piso 1? [Si/No]: ")
+			fmt.Scanf("%s", &readyPiso1)
 
-		// Determinar el resultado según el arma elegida
-		switch arma {
-		case 1: // Escopeta
-			if prob1 >= 50 {
-				// Mercenario vive
-				log.Printf("El mercenario %s sobrevivió al infierno con la escopeta", req.Name)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con la escopeta", estado = true}, nil
+			if readyPiso1 == "Si" {
+				// Piso 1 Entrada al infierno
+				arma := req.armaChoice
+
+				// Numeros aleatorios entre 0 y 100
+				rand.Seed(time.Now().UnixNano())
+				X := rand.Intn(101)
+				Y := rand.Intn(101)
+				for X == Y {
+					Y = rand.Intn(101)
+				} //Caso que sean iguales, se elige otro
+
+				// 	Probabilidades
+				prob1 := float64(X)
+				prob2 := float64(Y - X)
+				prob3 := float64(100 - Y)
+
+				// Determinar el resultado según el arma elegida
+				switch arma {
+				case 1: // Escopeta
+					if prob1 >= 50 {
+						// Mercenario vive
+						log.Printf("El mercenario %s sobrevivió al infierno con la escopeta", req.Name)
+						s.enviarDecisionANamenode(ctx, req)
+						return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con la escopeta", estado: true}, nil
+					} else {
+						// Eliminadp
+						log.Printf("El mercenario %s no sobrevivió al infierno con la escopeta", req.Name)
+						s.ReportarEliminacion(ctx, req.Name, req.Floor)
+						s.enviarDecisionANamenode(ctx, req)
+						return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con la escopeta", estado: false}, nil
+					}
+				case 2: // Rifle
+					if prob2 >= 50 {
+						log.Printf("El mercenario %s sobrevivió al infierno con el rifle", req.Name)
+						s.enviarDecisionANamenode(ctx, req)
+						return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con el rifle", estado: true}, nil
+					} else {
+						log.Printf("El mercenario %s no sobrevivió al infierno con el rifle", req.Name)
+						s.ReportarEliminacion(ctx, req.Name, req.Floor)
+						s.enviarDecisionANamenode(ctx, req)
+						return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con el rifle", estado: false}, nil
+					}
+				case 3: // Puños
+					if prob3 >= 50 {
+						log.Printf("El mercenario %s sobrevivió al infierno con los puños eléctricos", req.Name)
+						s.enviarDecisionANamenode(ctx, req)
+						return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con los puños eléctricos", estado: true}, nil
+					} else {
+						log.Printf("El mercenario %s no sobrevivió al infierno con los puños eléctricos", req.Name)
+						s.ReportarEliminacion(ctx, req.Name, req.Floor)
+						s.enviarDecisionANamenode(ctx, req)
+						return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con los puños eléctricos", estado: false}, nil
+					}
+				default:
+					// Si la elección de arma no corresponde
+					return nil, fmt.Errorf("arma no válida")
+				}
 			} else {
-				// Eliminadp
-				log.Printf("El mercenario %s no sobrevivió al infierno con la escopeta", req.Name)
-				s.ReportarEliminacion(ctx, req.Name, req.Floor)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con la escopeta", estado: false}, nil
+				log.Printf("El director no ha comenzado con el piso 1")
 			}
-		case 2: // Rifle
-			if prob2 >= 50 {
-				log.Printf("El mercenario %s sobrevivió al infierno con el rifle", req.Name)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con el rifle", estado = true}, nil
+
+		case 2:
+			var readyPiso2 string
+			fmt.Print("¿Dar inicio al Piso 2? [Si/No]: ")
+			fmt.Scanf("%s", &readyPiso2)
+
+			if readyPiso2 == "Si" {
+				//Piso 2: Trampas y traiciones
+				decisionMercenario := req.Decision //Estas pueden ser o el camino A o B
+
+				rand.Seed(time.Now().UnixNano())
+				decisionDirector := ""
+				if rand.Intn(2) == 0 {
+					decisionDirector = "A"
+				} else {
+					decisionDirector = "B"
+
+				}
+
+				//Comparamos la decision del mercenario vs la del director
+				if decisionMercenario == decisionDirector {
+					log.Printf("El mercenario %s eligio eligio el pasillo %s y pasa al piso final!", req.Name, &decisionMercenario)
+					s.enviarDecisionANamenode(ctx, req)
+					return &pb.MercenaryDecisionResponse{Mensaje: fmt.Sprintf("El mercesario eligioel pasillo %s y pasa al piso final", &decisionMercenario), estado: true}, nil
+				} else {
+					log.Printf("El mercenario %s eligio eligio el pasillo %s y quedo eliminado", req.Name, &decisionMercenario)
+					s.enviarDecisionANamenode(ctx, req)
+					return &pb.MercenaryDecisionResponse{Mensaje: fmt.Sprintf("El mercesario eligioel pasillo %s y quedo eliminado", &decisionMercenario), estado: false}, nil
+				}
 			} else {
-				log.Printf("El mercenario %s no sobrevivió al infierno con el rifle", req.Name)
-				s.ReportarEliminacion(ctx, req.Name, req.Floor)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con el rifle", estado = false}, nil
+				log.Printf("El director no ha comenzado con el piso 2")
 			}
-		case 3: // Puños
-			if prob3 >= 50 {
-				log.Printf("El mercenario %s sobrevivió al infierno con los puños eléctricos", req.Name)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con los puños eléctricos", estado = true}, nil
+		case 3:
+			var readyPiso3 string
+			fmt.Print("¿Dar inicio al Piso 3? [Si/No]: ")
+			fmt.Scanf("%s", &readyPiso3)
+
+			if readyPiso3 == "Si" {
+				//Piso 3: Confrontación Final
+				rand.Seed(time.Now().UnixNano())
+				patriarcaNumero := rand.Intn(15) + 1
+
+				mercenarioNumero := req.Decision
+				aciertos := req.Aciertos
+
+				// Comparamos el número del mercenario con el número del patriarca
+				if mercenarioNumero == int(patriarcaNumero) {
+					aciertos++
+				}
+
+				if aciertos >= 2 {
+					log.Printf("El mercenario %s acerto dos o más veces el número del Patriarca, gano! %d ", req.Name, patriarcaNumero)
+					s.enviarDecisionANamenode(ctx, req)
+					return &pb.MercenaryDecisionResponse{
+						Mensaje:  fmt.Sprintf("El mercesario ha salido victorioso "),
+						estado:   true,
+						Aciertos: true,
+					}, nil
+				} else {
+					log.Printf("El mercenario %s no acerto dos o más veces el número del Patriarca %d ", req.Name, patriarcaNumero)
+					s.enviarDecisionANamenode(ctx, req)
+					return &pb.MercenaryDecisionResponse{
+						Mensaje:  fmt.Sprintf("El mercesario ha sido eliminado "),
+						estado:   false,
+						Aciertos: false,
+					}, nil
+
+				}
 			} else {
-				log.Printf("El mercenario %s no sobrevivió al infierno con los puños eléctricos", req.Name)
-				s.ReportarEliminacion(ctx, req.Name, req.Floor)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con los puños eléctricos", estado = false}, nil
+				log.Printf("El director no ha comenzado con el piso 3")
 			}
 		default:
-			// Si la elección de arma no corresponde
-			return nil, fmt.Errorf("arma no válida")
-		}
-	case 2:
-		//Piso 2: Trampas y traiciones
-		decisionMercenario := req.Decision //Estas pueden ser o el camino A o B
-
-		rand.Seed(time.Now().UnixNano())
-		decisionDirector := ""
-		if rand.Intn(2) == 0 {
-			decisionDirector = "A"
-		} else {
-			decisionDirector = "B"
-
+			return nil, fmt.Errorf("Piso invalido")
 		}
 
-		//Comparamos la decision del mercenario vs la del director
-		if decisionMercenario == decisionDirector {
-			log.Printf("El mercenario %s eligio eligio el pasillo %s y pasa al piso final!", req.Name, &decisionMercenario)
-			return &pb.MercenaryDecisionResponse{Mensaje: fmt.Sprintf("El mercesario eligioel pasillo %s y pasa al piso final", &decisionMercenario), estado = true}, nil
-		} else {
-			log.Printf("El mercenario %s eligio eligio el pasillo %s y quedo eliminado", req.Name, &decisionMercenario)
-			return &pb.MercenaryDecisionResponse{Mensaje: fmt.Sprintf("El mercesario eligioel pasillo %s y quedo eliminado", &decisionMercenario), estado = false}, nil
-		}
-	case 3:
-		//Piso 3: Confrontación Final
-		rand.Seed(time.Now().UnixNano())
-		patriarcaNumero := rand.Intn(15) + 1
-
-		mercenarioNumero := req.Decision
-		aciertos := req.Aciertos
-
-		// Comparamos el número del mercenario con el número del patriarca
-		if mercenarioNumero == int(patriarcaNumero) {
-			aciertos++
-		}
-
-		if aciertos >= 2 {
-			log.Printf("El mercenario %s acerto dos o más veces el número del Patriarca %d ", req.Name, patriarcaNumero)
-			return &pb.MercenaryDecisionResponse{
-				Mensaje: fmt.Sprintf("El mercesario ha salido victorioso "),
-				estado: true
-				Aciertos:true,
-			}, nil
-		} else {
-			log.Printf("El mercenario %s no acerto dos o más veces el número del Patriarca %d ", req.Name, patriarcaNumero)
-			return &pb.MercenaryDecisionResponse{
-				Mensaje: fmt.Sprintf("El mercesario ha sido eliminado "),
-				estado: false,
-				Aciertos: false,
-			}, nil
-
-		}
-
-	default:
-		return nil, fmt.Errorf("Piso invalido")
+	} else {
+		log.Printf("El Director ha decidido no iniciar el juego")
 	}
+
 }
 
 func (s *DirectorServer) enviarDecisionANamenode(ctx context.Context, req *pb.MercenaryDecisionRequest) (*pb.MercenaryDecisionResponse, error) {
@@ -221,11 +266,11 @@ func (s *DirectorServer) enviarDecisionANamenode(ctx context.Context, req *pb.Me
 	client := pb.NewClient(conn)
 
 	//Registrar decision en el cliente
-	_, err = Namenode.RegisterDecision(ctx, &pb.MercenaryDecisionRequest) {
+	_, err = Namenode.RegisterDecision(ctx, &pb.MercenaryDecisionRequest){
 		MercenaryName: req.name,
-		Decision: req.decision,
-		Floor: req.floor,
-		IP: req.datanode_ip
+		Decision:      req.decision,
+		Floor:         req.floor,
+		IP:            req.datanode_ip,
 	}
 	if err != nil {
 		log.Fatalf("Falla al registrar la decision en el datanode: %v", err)

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package grpc;
-option go_package = "github.com/dmoyan0/Lab4/gRPC";
+option go_package = "github.com/dmoyan0/Lab4/blob/main/gRPC.proto";
 
 //SERVICIO mercenario
 service Mercenary {
