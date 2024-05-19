@@ -128,7 +128,7 @@ func (m *Mercenary) Decision(floor int) {
 		fmt.Printf("Decisión del mercenario %s en el piso %d: %s\n", m.name, floor, resp.Message)
 		if resp.estado == false {//Muere el mercenario
 			wg.Done();
-			log.Printf("Murio el mercenario: %s", m.name)
+			
 		}
 		else {
 			fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
@@ -153,7 +153,7 @@ func (m *Mercenary) Decision(floor int) {
 		fmt.Printf("Decisión del mercenario %s en el piso %d: %s\n", m.name, floor, resp.Message)
 		if resp.estado == false {//Muere el mercenario
 			wg.Done();
-			log.Printf("Murio el mercenario: %s", m.name)
+			
 		}
 		else {
 			fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
@@ -178,7 +178,7 @@ func (m *Mercenary) Decision(floor int) {
 			}
 			if resp.estado == false {//Muere el mercenario
 				wg.Done();
-				log.Printf("Murio el mercenario: %s", m.name)
+				
 			}
 			else {
 				fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
@@ -223,7 +223,7 @@ func (m *Mercenary) PlayerDecision(floor int) {
 		fmt.Printf("Decisión del mercenario %s en el piso %d: %s\n", m.name, floor, resp.Message)
 		if resp.estado == false {//Muere el mercenario
 			wg.Done();
-			log.Printf("Murio el mercenario: %s", m.name)
+			
 		}
 		else {
 			fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
@@ -247,7 +247,7 @@ func (m *Mercenary) PlayerDecision(floor int) {
 		fmt.Printf("Decisión del mercenario %s en el piso %d: %s\n", m.name, floor, resp.Message)
 		if resp.estado == false {//Muere el mercenario
 			wg.Done();
-			log.Printf("Murio el mercenario: %s", m.name)
+			
 		}
 		else {
 			fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
@@ -277,7 +277,7 @@ func (m *Mercenary) PlayerDecision(floor int) {
 			fmt.Printf("Ronda %d: Decisión del mercenario %s en el piso %d: %s , aciertos: %d\n", i+1, m.name, floor, resp.Message, aciertosMercenario)
 			if resp.estado == false {//Muere el mercenario
 				wg.Done();
-				log.Printf("Murio el mercenario: %s", m.name)
+				
 			}
 			else {
 				fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
