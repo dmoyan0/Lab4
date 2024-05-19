@@ -126,6 +126,13 @@ func (m *Mercenary) Decision(floor int) {
 			log.Fatalf("Error al tomar decisión en el piso %d: %v", floor, err)
 		}
 		fmt.Printf("Decisión del mercenario %s en el piso %d: %s\n", m.name, floor, resp.Message)
+		if resp.estado == false {//Muere el mercenario
+			wg.Done();
+			log.Printf("Murio el mercenario: %s", m.name)
+		}
+		else {
+			fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
+		}
 
 	case 2:
 		pasillo := []string{"A", "B"}
@@ -144,6 +151,14 @@ func (m *Mercenary) Decision(floor int) {
 			log.Fatalf("Error al tomar decisión en el piso %d: %v", floor, err)
 		}
 		fmt.Printf("Decisión del mercenario %s en el piso %d: %s\n", m.name, floor, resp.Message)
+		if resp.estado == false {//Muere el mercenario
+			wg.Done();
+			log.Printf("Murio el mercenario: %s", m.name)
+		}
+		else {
+			fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
+		}
+
 
 	case 3:
 		aciertosMercenario := 0
@@ -161,6 +176,13 @@ func (m *Mercenary) Decision(floor int) {
 			if err != nil {
 				log.Fatalf("Error al tomar decisión en el piso %d: %v", floor, err)
 			}
+			if resp.estado == false {//Muere el mercenario
+				wg.Done();
+				log.Printf("Murio el mercenario: %s", m.name)
+			}
+			else {
+				fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
+			}
 
 			if resp.Acierto {
 				aciertosMercenario++
@@ -175,6 +197,13 @@ func (m *Mercenary) Decision(floor int) {
 }
 
 func (m *Mercenary) PlayerDecision(floor int) {
+	fmt.Printf("Solicitar monto?(si)")
+	var choice string
+	fmt.Scanf("%s", &choice)
+	if choice == "si"{
+		GetAcumulatedAmount()
+	}
+
 	switch floor {
 	case 1:
 		var arma int
@@ -192,6 +221,13 @@ func (m *Mercenary) PlayerDecision(floor int) {
 			log.Fatalf("Error al tomar decisión en el piso %d: %v", floor, err)
 		}
 		fmt.Printf("Decisión del mercenario %s en el piso %d: %s\n", m.name, floor, resp.Message)
+		if resp.estado == false {//Muere el mercenario
+			wg.Done();
+			log.Printf("Murio el mercenario: %s", m.name)
+		}
+		else {
+			fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
+		}
 
 	case 2:
 		var decision string
@@ -209,6 +245,13 @@ func (m *Mercenary) PlayerDecision(floor int) {
 			log.Fatalf("Error al tomar decisión en el piso %d: %v", floor, err)
 		}
 		fmt.Printf("Decisión del mercenario %s en el piso %d: %s\n", m.name, floor, resp.Message)
+		if resp.estado == false {//Muere el mercenario
+			wg.Done();
+			log.Printf("Murio el mercenario: %s", m.name)
+		}
+		else {
+			fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
+		}
 
 	case 3:
 		aciertosMercenario := 0
@@ -232,6 +275,13 @@ func (m *Mercenary) PlayerDecision(floor int) {
 				aciertosMercenario++
 			}
 			fmt.Printf("Ronda %d: Decisión del mercenario %s en el piso %d: %s , aciertos: %d\n", i+1, m.name, floor, resp.Message, aciertosMercenario)
+			if resp.estado == false {//Muere el mercenario
+				wg.Done();
+				log.Printf("Murio el mercenario: %s", m.name)
+			}
+			else {
+				fmt.Printf("Mercenario %s sobrevivio el piso", m.name)
+			}
 		}
 		fmt.Printf("Total de aciertos del mercenario %s en el piso %d: %d\n", m.name, floor, aciertosMercenario)
 

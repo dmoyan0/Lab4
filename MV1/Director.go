@@ -124,30 +124,30 @@ func (s *DirectorServer) MercenaryDecision(ctx context.Context, req *pb.Mercenar
 			if prob1 >= 50 {
 				// Mercenario vive
 				log.Printf("El mercenario %s sobrevivió al infierno con la escopeta", req.Name)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con la escopeta"}, nil
+				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con la escopeta", estado = true}, nil
 			} else {
 				// Eliminadp
 				log.Printf("El mercenario %s no sobrevivió al infierno con la escopeta", req.Name)
 				s.ReportarEliminacion(ctx, req.Name, req.Floor)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con la escopeta"}, nil
+				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con la escopeta", estado: false}, nil
 			}
 		case 2: // Rifle
 			if prob2 >= 50 {
 				log.Printf("El mercenario %s sobrevivió al infierno con el rifle", req.Name)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con el rifle"}, nil
+				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con el rifle", estado = true}, nil
 			} else {
 				log.Printf("El mercenario %s no sobrevivió al infierno con el rifle", req.Name)
 				s.ReportarEliminacion(ctx, req.Name, req.Floor)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con el rifle"}, nil
+				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con el rifle", estado = false}, nil
 			}
 		case 3: // Puños
 			if prob3 >= 50 {
 				log.Printf("El mercenario %s sobrevivió al infierno con los puños eléctricos", req.Name)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con los puños eléctricos"}, nil
+				return &pb.MercenaryDecisionResponse{Message: "El mercenario sobrevivió al infierno con los puños eléctricos", estado = true}, nil
 			} else {
 				log.Printf("El mercenario %s no sobrevivió al infierno con los puños eléctricos", req.Name)
 				s.ReportarEliminacion(ctx, req.Name, req.Floor)
-				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con los puños eléctricos"}, nil
+				return &pb.MercenaryDecisionResponse{Message: "El mercenario no sobrevivió al infierno con los puños eléctricos", estado = false}, nil
 			}
 		default:
 			// Si la elección de arma no corresponde
@@ -169,10 +169,10 @@ func (s *DirectorServer) MercenaryDecision(ctx context.Context, req *pb.Mercenar
 		//Comparamos la decision del mercenario vs la del director
 		if decisionMercenario == decisionDirector {
 			log.Printf("El mercenario %s eligio eligio el pasillo %s y pasa al piso final!", req.Name, &decisionMercenario)
-			return &pb.MercenaryDecisionResponse{Mensaje: fmt.Sprintf("El mercesario eligioel pasillo %s y pasa al piso final", &decisionMercenario)}, nil
+			return &pb.MercenaryDecisionResponse{Mensaje: fmt.Sprintf("El mercesario eligioel pasillo %s y pasa al piso final", &decisionMercenario), estado = true}, nil
 		} else {
 			log.Printf("El mercenario %s eligio eligio el pasillo %s y quedo eliminado", req.Name, &decisionMercenario)
-			return &pb.MercenaryDecisionResponse{Mensaje: fmt.Sprintf("El mercesario eligioel pasillo %s y quedo eliminado", &decisionMercenario)}, nil
+			return &pb.MercenaryDecisionResponse{Mensaje: fmt.Sprintf("El mercesario eligioel pasillo %s y quedo eliminado", &decisionMercenario), estado = false}, nil
 		}
 	case 3:
 		//Piso 3: Confrontación Final
@@ -191,12 +191,14 @@ func (s *DirectorServer) MercenaryDecision(ctx context.Context, req *pb.Mercenar
 			log.Printf("El mercenario %s acerto dos o más veces el número del Patriarca %d ", req.Name, patriarcaNumero)
 			return &pb.MercenaryDecisionResponse{
 				Mensaje: fmt.Sprintf("El mercesario ha salido victorioso "),
+				estado: true
 				Aciertos:true,
 			}, nil
 		} else {
 			log.Printf("El mercenario %s no acerto dos o más veces el número del Patriarca %d ", req.Name, patriarcaNumero)
 			return &pb.MercenaryDecisionResponse{
-				Mensaje: fmt.Sprintf("El mercesario ha sido eliminado ")
+				Mensaje: fmt.Sprintf("El mercesario ha sido eliminado "),
+				estado: false,
 				Aciertos: false,
 			}, nil
 
