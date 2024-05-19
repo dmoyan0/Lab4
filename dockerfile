@@ -1,12 +1,12 @@
 # Use the specified base image
-ARG BASE_IMAGE=golang:1.21.3
+ARG BASE_IMAGE=golang:1.22.1
 FROM ${BASE_IMAGE} AS builder
 
 ARG DIRECTOR_PORT= 50050
 ARG DATANODE1_PORT= 50052
 ARG DATANODE2_PORT= 50053
 ARG DATANODE3_PORT= 50054
-ARG MERCENARY_PORT = 50055
+ARG MERCENARY_PORT= 50055
 ARG DOSHBANK_PORT= 50056
 ARG NAMENODE_PORT= 50051
 
@@ -27,7 +27,7 @@ COPY . .
 
 CMD if [ "$SERVER_TYPE" = "Director" ]; then \
         PORT=$DIRECTOR_PORT; \
-        cd /app/NameNode; \
+        cd /app/Director; \
         go build -o director-server; \
         ./director-server; \
     elif [ "$SERVER_TYPE" = "Datanode1" ]; then \
